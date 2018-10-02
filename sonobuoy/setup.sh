@@ -1,9 +1,7 @@
 #!/bin/sh
-# export KUBECONFIG=.kube/config_infinity
-sonobuoy run --mode Quick --kubeconfig /root/.kube/config_infinity
-until sonobuoy status --kubeconfig /root/.kube/config_infinity | grep e2e | grep -m 1 "complete"; do : ; done
-#until sonobuoy status | grep systemd_logs | grep -m 1 "complete"; do : ; done
-sleep 1m
+sonobuoy run --kubeconfig /root/.kube/config_infinity
+until sonobuoy status --kubeconfig /root/.kube/config_infinity | egrep 'systemd_logs|e2e' | grep -m 1 "complete"; do : ; done
+until sonobuoy logs --kubeconfig /root/.kube/config_infinity | grep -m 1 "Results available"; do : ; done
 sonobuoy retrieve . --kubeconfig /root/.kube/config_infinity
-aws s3 cp *.tar.gz s3://${bucket}/sonobuoy_test.tar.gz
+aws s3 sync . s3://${bucket}/ --exclude="*" --include="*.tar.gz"
 sonobuoy delete --kubeconfig /root/.kube/config_infinity

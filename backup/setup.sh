@@ -21,4 +21,4 @@ ark backup create cluster-backup
 
 # List the backup
 until ark backup get | grep -m 1 "Completed"; do : ; done
-ark backup get
+kubectl delete -f ark/examples/common/00-prereqs.yaml
