@@ -2,9 +2,6 @@
 # Deploy and run sonobuoy on Kubernetes
 sonobuoy run --kubeconfig /root/.kube/config_infinity
 
-# Wait until Sonobuoy test completes
-until sonobuoy status --kubeconfig /root/.kube/config_infinity | egrep 'systemd_logs|e2e' | grep -m 1 "complete"; do : ; done
-
 # Wait for the report to be generated
 until sonobuoy logs --kubeconfig /root/.kube/config_infinity | grep -m 1 "Results available"; do : ; done
 
