@@ -21,4 +21,6 @@ ark backup create cluster-backup
 
 # List the backup
 until ark backup get | grep -m 1 "Completed"; do : ; done
+
+# Delete ARK from the Kubernetes Cluster
 kubectl delete -f ark/examples/common/00-prereqs.yaml
