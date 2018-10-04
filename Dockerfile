@@ -1,8 +1,6 @@
 FROM alpine:latest
 
 ENV KOPS_VERSION=1.9.0
-# https://kubernetes.io/docs/tasks/kubectl/install/
-# latest stable kubectl: curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt
 ENV KUBECTL_VERSION=v1.10.2
 
 RUN apk --no-cache update \
@@ -12,8 +10,7 @@ RUN apk --no-cache update \
   && mv kops-linux-amd64 /usr/local/bin/kops \
   && curl -LO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
   && mv kubectl /usr/local/bin/kubectl \
-  && chmod +x /usr/local/bin/kops /usr/local/bin/kubectl \
-  && apk del --purge build-dependencies
+  && chmod +x /usr/local/bin/kops /usr/local/bin/kubectl
 
 WORKDIR /root/
 COPY setup.sh .
