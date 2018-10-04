@@ -10,7 +10,7 @@ export KOPS_STATE_STORE=s3://$S3Bucket
 git clone https://github.com/ranjujohn/k8s.git
 
 # Get the KOPS yaml file
-kops get $ClusterName --state=s3://$S3-Bucket -o yaml > $ClusterName.yaml
+kops get $ClusterName -o yaml > $ClusterName.yaml
 
 # Set the version variables
 currentversion=$(cat $ClusterName.yaml  | grep kubernetesVersion | awk '{print $2}')
