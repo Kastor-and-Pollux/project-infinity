@@ -11,7 +11,7 @@ chmod +x /usr/local/bin/kops /usr/local/bin/kubectl
 export KOPS_STATE_STORE=s3://$S3Bucket
 
 # Clone the repository where the version file is available
-git clone https://github.com/ranjujohn/k8s.git
+git clone https://github.com/Kastor-and-Pollux/project-infinity.git
 
 # Get the KOPS yaml file
 kops get $ClusterName -o yaml > $ClusterName.yaml
