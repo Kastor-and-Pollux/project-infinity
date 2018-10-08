@@ -1,7 +1,11 @@
 #!/bin/sh
 
-# Export Kubeconfig
-export KUBECONFIG=.kube/config_infinity
+#Instal Required packages 
+wget https://github.com/kubernetes/kops/releases/download/${KOPS_VERSION}/kops-linux-amd64
+mv kops-linux-amd64 /usr/local/bin/kops
+wget https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+mv kubectl /usr/local/bin/kubectl
+chmod +x /usr/local/bin/kops /usr/local/bin/kubectl
 
 # Export S3 State Store for KOPS
 export KOPS_STATE_STORE=s3://$S3Bucket

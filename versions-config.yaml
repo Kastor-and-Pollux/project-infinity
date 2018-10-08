@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: version-config
+  namespace: default
+data:
+  KOPS_VERSION: 1.10.6
+  KUBECTL_VERSION: v1.10.6
+  ARK_VERSION: v0.9.6

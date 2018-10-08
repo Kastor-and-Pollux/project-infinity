@@ -1,26 +1,18 @@
 #!/bin/sh
 
 # Export Kubeconfig
-export KUBECONFIG=.kube/config_infinity
+export KUBECONFIG=/root/.kube/config_infinity
 
-# Clone the ARK repository
-git clone https://github.com/heptio/ark.git --branch v0.9.5
+# Download and Install Kubectl and ARK
+wget https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+wget https://github.com/heptio/ark/releases/download/${ARK_VERSION}/ark-${ARK_VERSION}-linux-amd64.tar.gz
+tar -zxvf ark-${ARK_VERSION}-linux-amd64.tar.gz
+mv kubectl /usr/local/bin/kubectl && mv ark /usr/local/bin/
+chmod +x /usr/local/bin/kubectl /usr/local/bin/ark
 
-# update the files to point to the right Region and Bucket
-sed -i "s/<YOUR_REGION>/$region/g" ark/examples/aws/*
-sed -i "s/<YOUR_BUCKET>/$bucket/g" ark/examples/aws/*
+# Execute backup
+backupname=kops-backup-$(date +"%Y%m%d%H%M%S")
+ark backup create $backupname
 
-# Deploy ARK to kubernetes & Create secret
-kubectl apply -f ark/examples/common/00-prereqs.yaml
-kubectl create secret generic cloud-credentials --namespace heptio-ark --from-file cloud=/root/.aws/credentials
-kubectl apply -f ark/examples/aws/00-ark-config.yaml
-kubectl apply -f ark/examples/aws/10-deployment.yaml
-
-# Execute the backup
-ark backup create cluster-backup
-
-# List the backup
-until ark backup get | grep -m 1 "Completed"; do : ; done
-
-# Delete ARK from the Kubernetes Cluster
-kubectl delete -f ark/examples/common/00-prereqs.yaml
+# Wait for the backup to complete
+until ark backup get $backupname | grep -m 1 "Completed"; do : ; done
