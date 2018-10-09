@@ -38,7 +38,7 @@
               - mountPath: /root/.aws
                 name: aws-config
               - mountPath: /root/.kube
-                name: kube-config
+                name: kubeconfig
         imagePullSecrets:
           - name: gcr-json-key
         restartPolicy: Never
@@ -46,7 +46,7 @@
           - name: aws-config
             secret:
               secretName: aws-config
-          - name: kube-config
+          - name: kubeconfig
             secret:
               secretName: kubeconfig
 

@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Export Kubeconfig
-export KUBECONFIG=/root/.kube/config_infinity
-
 # Download and Install Kubectl and ARK
 wget https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl
 wget https://github.com/heptio/ark/releases/download/${ARK_VERSION}/ark-${ARK_VERSION}-linux-amd64.tar.gz
