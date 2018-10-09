@@ -1,0 +1,44 @@
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: sonobuoy
+    namespace: default
+  spec:
+    template:
+      metadata:
+        name: sonobuoy
+      spec:
+        containers:
+          - env:
+              - name: bucket
+                value: '${ parameters.TESTS3Bucket }'
+              - name: SONOBUOY_VERSION
+                valueFrom:
+                  configMapKeyRef:
+                    key: SONOBUOY_VERSION
+                    name: version-config
+            image: gcr.io/myk8s-190709/sonobuoy-spinnaker
+            imagePullPolicy: Always
+            name: sonobuoy
+            resources:
+              limits:
+                cpu: 50m
+                memory: 128Mi
+              requests:
+                cpu: 25m
+                memory: 64Mi
+            volumeMounts:
+              - mountPath: /root/.aws
+                name: aws-config
+              - mountPath: /root/.kube
+                name: kube-config
+        imagePullSecrets:
+          - name: gcr-json-key
+        restartPolicy: Never
+        volumes:
+          - name: aws-config
+            secret:
+              secretName: aws-config
+          - name: kube-config
+            secret:
+              secretName: kube-config

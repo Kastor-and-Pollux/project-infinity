@@ -1,0 +1,41 @@
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: backup
+    namespace: default
+  spec:
+    template:
+      metadata:
+        name: backup
+      spec:
+        containers:
+        - env:
+          - name: ARK_VERSION
+            valueFrom:
+              configMapKeyRef:
+                name: version-config
+                key: ARK_VERSION
+          - name: KUBECTL_VERSION
+            valueFrom:
+              configMapKeyRef:
+                name: version-config
+                key: KUBECTL_VERSION
+          image: gcr.io/myk8s-190709/ark-bkp
+          imagePullPolicy: Always
+          name: ark
+          resources:
+            limits:
+              cpu: 50m
+              memory: 128Mi
+            requests:
+              cpu: 25m
+              memory: 64Mi
+          volumeMounts:
+            - mountPath: /root/.kube
+              name: kubeconfig
+        restartPolicy: Never
+        volumes:
+          - name: kubeconfig
+            secret:
+              secretName: kubeconfig
+

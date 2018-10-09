@@ -1,0 +1,52 @@
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: upgrade
+    namespace: default
+  spec:
+    template:
+      metadata:
+        name: upgrade
+      spec:
+        containers:
+          - env:
+              - name: S3Bucket
+                value: '${ parameters.KOPSS3Bucket }'
+              - name: ClusterName
+                value: '${ parameters.ClusterName }'
+              - name: KOPS_VERSION
+                valueFrom:
+                  configMapKeyRef:
+                    key: KOPS_VERSION
+                    name: version-config
+              - name: KUBECTL_VERSION
+                valueFrom:
+                  configMapKeyRef:
+                    name: version-config
+                    key: KUBECTL_VERSION
+            image: gcr.io/myk8s-190709/kops-spinnaker
+            imagePullPolicy: Always
+            name: myimage
+            resources:
+              limits:
+                cpu: 50m
+                memory: 128Mi
+              requests:
+                cpu: 25m
+                memory: 64Mi
+            volumeMounts:
+              - mountPath: /root/.aws
+                name: aws-config
+              - mountPath: /root/.kube
+                name: kube-config
+        imagePullSecrets:
+          - name: gcr-json-key
+        restartPolicy: Never
+        volumes:
+          - name: aws-config
+            secret:
+              secretName: aws-config
+          - name: kube-config
+            secret:
+              secretName: kubeconfig
+

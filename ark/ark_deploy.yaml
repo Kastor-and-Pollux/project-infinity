@@ -1,0 +1,51 @@
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: arkdeploy
+    namespace: default
+  spec:
+    template:
+      metadata:
+        name: arkdeploy
+      spec:
+        containers:
+          - env:
+              - name: bucket
+                value: '${ parameters.ARKS3Bucket }'
+              - name: region
+                value: '${ parameters.Region }'
+              - name: ARK_VERSION
+                valueFrom:
+                  configMapKeyRef:
+                    name: version-config
+                    key: ARK_VERSION
+              - name: KUBECTL_VERSION
+                valueFrom:
+                  configMapKeyRef:
+                    name: version-config
+                    key: KUBECTL_VERSION
+            image: gcr.io/myk8s-190709/ark-spinnaker
+            imagePullPolicy: Always
+            name: arkdeploy
+            resources:
+              limits:
+                cpu: 50m
+                memory: 128Mi
+              requests:
+                cpu: 25m
+                memory: 64Mi
+            volumeMounts:
+              - mountPath: /root/.aws
+                name: aws-config
+              - mountPath: /root/.kube
+                name: kubeconfig
+        imagePullSecrets:
+          - name: gcr-json-key
+        restartPolicy: Never
+        volumes:
+          - name: aws-config
+            secret:
+              secretName: aws-config
+          - name: kubeconfig
+            secret:
+              secretName: kubeconfig
