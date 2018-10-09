@@ -15,9 +15,12 @@ We are planning to create a spinnaker environment that can automatically upgrade
 - Should have a running Kubernetes cluster with Spinnaker installed
 - Create a secret with AWS credentials in kubernetes cluster
 - Create a secret with kubeconfig (of the cluster to be upgraded) in kubernetes cluster
-- Create a custom image with kops, kubectl and aws cli.
 - If you are using private registry, create a secret of docker-registry type to authenticate with the container registry.
 - Create S3 buckets for storing cluster backup and sonobuoy test report
+- ARK should be installed and configured for the backup
+- Custom image for Backup
+- Custom image for upgrade
+- Custom image for Sonobuoy test
 
 ## Creating pipeline
 
@@ -26,30 +29,41 @@ Configure the S3 bucket name(For cluster backup and test report) as parameters
 
   ### Stage 1: Backup the Cluster
 
-    - Create a Deploy (Manifest) stage from the stage selector and provide a YAML with the custom image created above
-    - Environment variables should be set to pass the S3 bucket name
-    - AWS credentials and Kubeconfig should be mounted as volumes in this POD
-    - Clone ARK repo and edit the yaml file to point to the right s3 bucket.
-    - Install ARK to a specific namespace & initiate backup to S3
+    - Create a Deploy (Manifest) stage from the stage selector and provide a YAML with the custom image for backup
+    - Kubeconfig should be mounted as volumes in this POD
+    - Kubectl and ARk version has to be passed as env. variables from a configmap
+    - This custom image will do the following tasks
+        - Download Kubectl & ARK and run the backup
+        - Wait for it to be completed.
     - Once completed, notify via slack
     - Trigger Stage 2
 
   ### Stage 2: Upgrade the Cluster
 
-    - Create a Deploy (Manifest) stage from the stage selector and provide a YAML with the custom image created above
+    - Create a Deploy (Manifest) stage from the stage selector and provide a YAML with the custom image for upgrade
     - Environment variables should be set to pass the cluster name and the S3 bucket name of cluster state
     - AWS credentials and Kubeconfig should be mounted as volumes in this POD
-    - Clone the repository that triggered the job
-    - Update the YAML file with the required Kubernetes version
-    - Replace the YAML file using kops replace
-    - Execute kops update and kops rolling update to deploy the new version.
+    - Kubectl and KOPS version has to be passed as env. variables from a configmap
+    - This custom image will do the following tasks
+        - Download Kubectl & KOPS
+        - Clone the repository that triggered the job
+        - Export the KOPS config yaml
+        - Update the YAML file with the required Kubernetes version based on the version file
+        - Replace the YAML file using kops replace
+        - Execute kops update and kops rolling update to deploy the new version.
     - Once completed, notify via slack
     - Trigger Stage 3
 
   ### Stage 3: Run Conformance Test
 
-    - Create a Deploy (Manifest) stage from the stage selector and provide a YAML with the custom image created above
+    - Create a Deploy (Manifest) stage from the stage selector and provide a YAML with the custom image for Sonobuoy test
+    - Environment variables should be set to pass the S3 bucket name for copying the report.
     - AWS credentials and Kubeconfig should be mounted as volumes in this POD
-    - Run the sonobuoy test.
-    - Once sonobuoy status shows the run as completed, copy the output to an S3 bucket
+    - Sonobuoy version has to be passed as env. variable from a configmap
+    - This custom image will do the following tasks
+        - Download sonobuoy
+        - Install and run the sonobuoy test.
+        - Wiat for the sonobuoy test to complete
+        - copy the output to an S3 bucket
+        - Delete sonobouoy from the Kubernetes cluster
     - Notify via slack
