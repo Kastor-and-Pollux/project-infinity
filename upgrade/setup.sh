@@ -18,7 +18,7 @@ kops get $ClusterName -o yaml > $ClusterName.yaml
 
 # Set the version variables
 currentversion=$(cat $ClusterName.yaml  | grep kubernetesVersion | awk '{print $2}')
-newversion=$(cat k8s/version | grep Version | awk '{print $2}')
+newversion=$(cat project-infinity/version | grep Version | awk '{print $2}')
 
 # Update the KOPS yaml file with the new version number
 sed -i "s/$currentversion/$newversion/g" $ClusterName.yaml

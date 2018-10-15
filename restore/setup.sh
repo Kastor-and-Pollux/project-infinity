@@ -9,7 +9,8 @@ chmod +x /usr/local/bin/kubectl /usr/local/bin/ark
 
 # Execute backup
 backupname=$(ark backup get | awk '{print $1}' |  head -n 2 | tail -n 1)
-ark restore create --from-backup $backupname
+restorename=kops-restore-$(date +"%Y%m%d%H%M%S")
+ark restore create $restorename --from-backup $backupname
 
 # Wait for the backup to complete
-until ark restore get $backupname | grep -m 1 "Completed"; do : ; done
+until ark restore get $restorename | grep -m 1 "Completed"; do : ; done
