@@ -9,6 +9,9 @@ metadata:
 spec:
   updateStrategy:
     type: OnDelete
+  selector:
+    matchLabels:
+      name: node-exporter
   template:
     metadata:
       labels:
