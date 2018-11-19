@@ -1,0 +1,88 @@
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: prometheus-alertmanager
+  labels: &Labels
+    k8s-app: alertmanager
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: alertmanager
+spec:
+  serviceName: "prometheus-alertmanager-operated"
+  replicas: 2
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels: *Labels
+  template:
+    metadata:
+      labels: *Labels
+    spec:
+      containers:
+        - name: prometheus-alertmanager
+          image: prom/alertmanager:v0.14.0
+          imagePullPolicy: Always
+          args:
+            - --config.file=/etc/config/alertmanager.yml
+            - --storage.path=/data
+            - --web.listen-address=:9093
+            - --web.route-prefix=/
+            - --mesh.listen-address=$(POD_IP):6783
+            - --mesh.peer=prometheus-alertmanager-0.prometheus-alertmanager-operated.prometheus.svc:6783
+            - --mesh.peer=prometheus-alertmanager-1.prometheus-alertmanager-operated.prometheus.svc:6783
+            - --log.level=debug
+          env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          ports:
+            - containerPort: 9093
+              name: http
+            - containerPort: 6783
+              name: mesh
+          readinessProbe:
+            httpGet:
+              path: /#/status
+              port: 9093
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+            - name: prometheus-alertmanager-data
+              mountPath: "/data"
+              subPath: ""
+          resources:
+            limits:
+              cpu: 10m
+              memory: 50Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
+      volumes:
+        - name: config-volume
+          configMap:
+            name: prometheus-alertmanager-config
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: k8s-app
+                operator: In
+                values:
+                - alertmanager
+            topologyKey: "kubernetes.io/hostname"
+  volumeClaimTemplates:
+  - metadata:
+      name: prometheus-alertmanager-data
+    spec:
+      storageClassName: standard
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: "2Gi"
