@@ -17,6 +17,7 @@ spec:
       labels:
         k8s-app: node-exporter
     spec:
+      serviceAccountName: prometheus
       containers:
         - name: prometheus-node-exporter
           image: prom/node-exporter:v0.15.2

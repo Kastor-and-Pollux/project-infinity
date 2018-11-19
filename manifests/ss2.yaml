@@ -15,6 +15,7 @@ spec:
     metadata:
       labels: *Labels
     spec:
+      serviceAccountName: prometheus
       initContainers:
           - name: "init-chmod-data"
             image: debian:9

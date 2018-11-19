@@ -18,6 +18,7 @@ spec:
     metadata:
       labels: *Labels
     spec:
+      serviceAccountName: prometheus
       initContainers:
       - name: "init-chown-data"
         image: debian:9
