@@ -11,7 +11,7 @@ spec:
     type: OnDelete
   selector:
     matchLabels:
-      name: prometheus-node-exporter
+      k8s-app: node-exporter
   template:
     metadata:
       labels:
