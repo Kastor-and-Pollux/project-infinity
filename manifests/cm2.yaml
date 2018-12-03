@@ -5,6 +5,7 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   name: prometheus-dashboards
+  namespace: prometheus
   labels:
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/component: grafana

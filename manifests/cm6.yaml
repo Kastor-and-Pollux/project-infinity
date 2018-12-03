@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   name: prometheus-prometheus-config
+  namespace: prometheus
   labels:
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/component: prometheus

@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-alertmanager-config
+  namespace: prometheus
   labels:
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/component: alertmanager

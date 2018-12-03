@@ -2,6 +2,7 @@ apiVersion: apps/v1beta2
 kind: StatefulSet
 metadata:
   name: prometheus-grafana
+  namespace: prometheus
   labels: &Labels
     k8s-app: grafana
     app.kubernetes.io/name: prometheus

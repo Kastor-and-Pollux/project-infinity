@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus-grafana
+  namespace: prometheus
   labels:
     k8s-app: grafana
     app.kubernetes.io/name: prometheus
